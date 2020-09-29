@@ -28,11 +28,12 @@
             .then(products => {
          
             const container = document.getElementById('products');
+            container.innerHTML = ' ';
                 products.forEach(pd => {
                     const item = document.createElement('p');
                     item.innerHTML = `<strong>${pd.name}</strong> price: ${pd.price} quantity: ${pd.quantity}
                     <button onclick="loadProduct('${pd._id}')">update</button> 
-                    <button onclick="deleteProduct('${pd._id}')">delete</button>`;
+                    <button onclick="deleteProduct(event, '${pd._id}')">delete</button>`;
                     container.appendChild(item);
                 })
             })
@@ -47,18 +48,42 @@
                  <h3>Update: ${data._id}</h3>
                  price: <input type="text" value="${data.price}" id="price"><br>
                  quantity: <input type="text" value="${data.quantity}" id="quantity"><br>
-                 <button>submit</button>
+                 <button onclick="updateProduct('${data._id}')">submit</button>
                  `;
             })
 
         }
+        function updateProduct(id) {
+           const  price= document.getElementById('price').value;
+           const quantity= document.getElementById('quantity').value;
+           const product = {id, price, quantity};
+           console.log(product);
+           fetch(`/update/${id}`, {
+               method: 'PATCH',
+               headers:{'Content-Type': 'application/json'},
+               body: JSON.stringify(product)     
+           })
+           .then(res => res.json())
+           .then(result => {
+               if(result){
+                   loadAllProducts();
+               }
+               
+           })
+        }
 
-        function deleteProduct(id){
+        
+        function deleteProduct(event, id){
+            console.log(event.target);
             fetch(`/delete/${id}`, {
                 method: 'DELETE',
             })
             .then(res => res.json())
-            .then(result => console.log('deleted successful'))
+            .then(result => {
+                if(result){
+                    event.target.parentNode.style.display = 'none' 
+                }
+            })
         }
     </script>
 </body>
